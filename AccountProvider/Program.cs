@@ -1,5 +1,6 @@
 using Data.Contexts;
 using Data.Entities;
+using Google.Protobuf.WellKnownTypes;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.Azure.Functions.Worker;
 using Microsoft.EntityFrameworkCore;
@@ -13,7 +14,7 @@ var host = new HostBuilder()
     {
         services.AddApplicationInsightsTelemetryWorkerService();
         services.ConfigureFunctionsApplicationInsights();
-
+        services.AddHttpClient();
         services.AddDbContext<DataContext>(x => x.UseSqlServer(context.Configuration.GetConnectionString("SqlServer")));
         services.AddDefaultIdentity<UserAccount>(x =>
         {
@@ -47,7 +48,4 @@ using (var scope = host.Services.CreateScope())
         }
     }
 }
-
-
-
 host.Run();

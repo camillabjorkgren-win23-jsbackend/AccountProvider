@@ -28,7 +28,6 @@ public class SignUp
     }
 
     [Function("SignUp")]
-    //[ServiceBusOutput("verification_request", Connection = "ServiceBusConnection")]
     public async Task<IActionResult> Run([HttpTrigger(AuthorizationLevel.Function, "post")] HttpRequest req)
     {
         var standardRole = "User";
