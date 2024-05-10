@@ -15,7 +15,7 @@ var host = new HostBuilder()
         services.ConfigureFunctionsApplicationInsights();
 
         services.AddDbContext<DataContext>(x => x.UseSqlServer(context.Configuration.GetConnectionString("SqlServer")));
-        services.AddDefaultIdentity<UserAddress>(x =>
+        services.AddDefaultIdentity<UserAccount>(x =>
         {
             x.SignIn.RequireConfirmedAccount = true;
             x.User.RequireUniqueEmail = true;
