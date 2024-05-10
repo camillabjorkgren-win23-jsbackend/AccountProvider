@@ -17,7 +17,8 @@ public class SignUp(ILogger<SignUp> logger, UserManager<UserAccount> usermanager
     private readonly ILogger<SignUp> _logger = logger;
     private readonly UserManager<UserAccount> _userManager = usermanager;
 
-  
+    //AzureFunctions fungerar inte?
+    //https://youtu.be/FJeGTgXLWFQ?t=4675
 
     [Function("SignUp")]
     //[ServiceBusOutput("verification_request", Connection = "ServiceBusConnection")]
@@ -77,7 +78,7 @@ public class SignUp(ILogger<SignUp> logger, UserManager<UserAccount> usermanager
                             //        Email = userAccount.Email,
 
                             //    }), Encoding.UTF8, "application/json");
-                            //    var response = await http.PostAsync("", content);
+                            //    var response = await http.PostAsync("https://verificationprovider-silicon-camilla.azurewebsites.net/api/GenerateVerificationCode?code=e-FZWr7UrOwDoW77gwlwWQzV1vAe6mDJY0AO-9Pezre5AzFuuHOoQA==", content);
                             //}
                             //catch (Exception ex)
                             //{
