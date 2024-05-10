@@ -4,7 +4,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Azure.Functions.Worker;
-using Microsoft.Azure.Functions.Worker.Extensions.Abstractions;
+using Microsoft.Azure.ServiceBus;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
@@ -12,13 +12,20 @@ using System.Text;
 
 namespace AccountProvider.Functions;
 
-public class SignUp(ILogger<SignUp> logger, UserManager<UserAccount> usermanager)
+public class SignUp
 {
-    private readonly ILogger<SignUp> _logger = logger;
-    private readonly UserManager<UserAccount> _userManager = usermanager;
+    private readonly ILogger<SignUp> _logger;
+    private readonly UserManager<UserAccount> _userManager;
+    private readonly QueueClient _queueClient;
 
-    //AzureFunctions fungerar inte?
-    //https://youtu.be/FJeGTgXLWFQ?t=4675
+    public SignUp(ILogger<SignUp> logger, UserManager<UserAccount> userManager)
+    {
+        _logger = logger;
+        _userManager = userManager;
+        string serviceBusConnection = Environment.GetEnvironmentVariable("ServiceBusConnection")!;
+        string queueName = Environment.GetEnvironmentVariable("ServiceBusQueueName")!;
+        _queueClient = new QueueClient(serviceBusConnection, queueName);
+    }
 
     [Function("SignUp")]
     //[ServiceBusOutput("verification_request", Connection = "ServiceBusConnection")]
@@ -42,7 +49,7 @@ public class SignUp(ILogger<SignUp> logger, UserManager<UserAccount> usermanager
 
             try
             {
-                urr = JsonConvert.DeserializeObject<UserRegistrationRequest>(body);
+                urr = JsonConvert.DeserializeObject<UserRegistrationRequest>(body)!;
             }
             catch (Exception ex)
             {
@@ -70,20 +77,19 @@ public class SignUp(ILogger<SignUp> logger, UserManager<UserAccount> usermanager
                         var result = await _userManager.CreateAsync(userAccount, urr.Password);
                         if (result.Succeeded)
                         {
-                            //try
-                            //{
-                            //    using var http = new HttpClient();
-                            //    StringContent content = new StringContent(JsonConvert.SerializeObject(new
-                            //    {
-                            //        Email = userAccount.Email,
-
-                            //    }), Encoding.UTF8, "application/json");
-                            //    var response = await http.PostAsync("https://verificationprovider-silicon-camilla.azurewebsites.net/api/GenerateVerificationCode?code=e-FZWr7UrOwDoW77gwlwWQzV1vAe6mDJY0AO-9Pezre5AzFuuHOoQA==", content);
-                            //}
-                            //catch (Exception ex)
-                            //{
-                            //    _logger.LogError($"ERROR :  http.PostAsync :: {ex.Message}");
-                            //}
+                            try
+                            {
+                                var message = new Message(Encoding.UTF8.GetBytes(JsonConvert.SerializeObject(new
+                                {
+                                    Email = userAccount.Email,
+                                })));
+                                await _queueClient.SendAsync(message);
+                                _logger.LogInformation("Message sent to Service Bus queue");
+                            }
+                            catch (Exception ex)
+                            {
+                                _logger.LogError($"ERROR : JsonConvert.DeserializeObject<UserRegistrationRequest> :: {ex.Message}");
+                            }
 
                             var roleResult = await _userManager.AddToRoleAsync(userAccount, standardRole);
                             if (standardRole == "SuperAdmin" && roleResult.Succeeded)

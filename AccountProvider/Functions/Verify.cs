@@ -45,10 +45,13 @@ public class Verify(ILogger<Verify> logger, UserManager<UserAccount> userManager
             {
                 try
                 {
+
+                    //SKICKA IN BÅDE KOD OCH EMAIL?
+
                     //using var http = new HttpClient();
                     //StringContent content = new StringContent(JsonConvert.SerializeObject(vr), Encoding.UTF8, "application/json");
                     //var response = await http.PostAsync("https://verificationprovider-silicon-camilla.azurewebsites.net/api/validate?code=y88D2-qlrXm5-KuFGf9kYo3-RgqiUN23aMZfkGM_ovOmAzFuI9m1Bg==", content);
-
+                   
                     if (true)
                     {
 
