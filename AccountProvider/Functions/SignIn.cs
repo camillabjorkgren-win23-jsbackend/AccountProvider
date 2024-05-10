@@ -52,16 +52,13 @@ namespace AccountProvider.Functions
 
                             return new OkObjectResult("accesstoken");
                         }
-                        else
-                        {
-                            return new UnauthorizedResult();
-                        }
                         
                     }
                     catch (Exception ex)
                     {
                         _logger.LogError($"ERROR : _signInManager.PasswordSignInAsync :: {ex.Message}");
                     }
+                    return new UnauthorizedResult();
 
                 }
             }
