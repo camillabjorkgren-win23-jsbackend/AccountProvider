@@ -1,5 +1,6 @@
 using AccountProvider.Models;
 using Data.Entities;
+using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
@@ -15,12 +16,12 @@ namespace AccountProvider.Functions
         private readonly ILogger<SignIn> _logger = logger;
         private readonly SignInManager<UserAccount> _signInManager = signInManager;
         private readonly UserManager<UserAccount> _userManager = userManager;
-
+       
         [Function("SignIn")]
         public async Task<IActionResult> Run([HttpTrigger(AuthorizationLevel.Function, "post")] HttpRequest req)
         {
             string body = null!;
-
+           
             try
             {
                 body = await new StreamReader(req.Body).ReadToEndAsync();
@@ -52,12 +53,11 @@ namespace AccountProvider.Functions
                             var result = await _signInManager.CheckPasswordSignInAsync(userAccount, loginRequest.Password, false);
                             if (result.Succeeded)
                             {
-                                // Get token from tokenprovider
 
                                 return new OkObjectResult("accesstoken");
                             }
                         }
-                        
+
 
                     }
                     catch (Exception ex)
